@@ -1,10 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const hostModel = require('../models/host.js');
-const controller = require('../controllers/modelController');
+const controller = require('../controllers/model');
 const routerPath = "/hosts";
 const { check, validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
+const HOST = require('../models/host');
+const Model = require('../controllers/model');
+const Host = new Model(HOST);
+let { findOne, find, create, update, remove } = Host;
 
 // Create validation schema for update request body
 
@@ -22,11 +26,11 @@ router.post(routerPath, validationChain, (req, res) => {
     if (!errors.isEmpty()) {
         return res.status(422).json({ errors: errors.array() });
     };
-    controller.create(hostModel)(req, res);
+    create(req, res);
 });
 
-router.get(routerPath, controller.find(hostModel));
-router.get(routerPath + '/:id', controller.findOne(hostModel));
+router.get(routerPath, find.bind(Host));
+router.get(routerPath + '/:id', findOne.bind(Host));
 
 router.put(routerPath + '/:id', validationChain, (req, res) => {
     const errors = validationResult(req);
@@ -34,9 +38,9 @@ router.put(routerPath + '/:id', validationChain, (req, res) => {
         return res.status(422).json({ errors: errors.array() });
     };
 
-    controller.update(hostModel)(req, res);
+    update.bind(Host)(req, res);
 });
 
-router.delete(routerPath + '/:id', controller.remove(hostModel));
+router.delete(routerPath + '/:id', remove.bind(Host));
 
 module.exports = router;
