@@ -12,8 +12,13 @@ const create = (model) => async (req, res) => {
 
 const find = (model) => async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
     const docs = await model.find().lean().exec();
-    res.status(200).json({ data: docs });
+    const paginatedDocs = docs.slice(startIndex, endIndex);
+    res.status(200).json({ data: paginatedDocs });
   } catch (e) {
     console.error(e);
     res.status(400).end();
